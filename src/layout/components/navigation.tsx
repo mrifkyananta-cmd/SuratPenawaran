@@ -10,7 +10,7 @@ export default function Navigation({
   onNavigate?: () => void
 }) {
   return (
-    <nav aria-label="Navigasi utama" className="flex flex-col gap-8">
+    <nav aria-label="Navigasi utama" className="flex flex-col gap-6">
       {navigationItems.map(({ label, to, icon: Icon, end }) => (
         <NavLink
           key={to}
@@ -20,11 +20,11 @@ export default function Navigation({
           title={collapsed ? label : undefined}
           className={({ isActive }) =>
             clsx(
-              'group flex min-h-[4.4rem] min-w-0 items-center gap-12 rounded-xl px-12 py-10 text-[1.8rem] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary',
+              'group flex min-h-[4.4rem] min-w-0 items-center gap-12 rounded-xl px-14 py-10 text-[1.45rem] leading-[1.4] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0000FF]',
               collapsed && 'justify-center px-8',
               isActive
-                ? 'bg-app-primary text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                ? 'border border-[#E2E8F0] bg-[#F8FAFC] font-semibold text-[#0000FF]'
+                : 'font-normal text-[#000000] hover:bg-[#F8FAFC] hover:text-[#0000FF]',
             )
           }
         >

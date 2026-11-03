@@ -1,4 +1,39 @@
-export function generatePdfDefinition(data: any) {
+import type pdfMake from 'pdfmake/build/pdfmake'
+
+type PdfDocDefinition = Parameters<typeof pdfMake.createPdf>[0]
+
+export interface PesananBarangItem {
+  nama: string
+  jumlah: number
+  satuan: string
+  harga: number
+}
+
+export interface SuratPesananFormData {
+  logo: string
+  header1: string
+  header2: string
+  header3: string
+  nomor_surat: string
+  perihal: string
+  ref_penawaran: string
+  tempat_tanggal: string
+  vendor_nama: string
+  vendor_perusahaan: string
+  vendor_alamat: string
+  vendor_kontak: string
+  pembuka: string
+  items: PesananBarangItem[]
+  kenaPpn: boolean
+  alamat_kirim: string
+  tgl_kirim: string
+  syarat_bayar: string
+  penutup: string
+  pemesan_perusahaan: string
+  pemesan_nama: string
+}
+
+export function generatePdfDefinition(data: SuratPesananFormData): PdfDocDefinition {
   const rupiah = (num: number) =>
     new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -7,8 +42,8 @@ export function generatePdfDefinition(data: any) {
     }).format(num || 0)
 
   const subtotal = (data.items || []).reduce(
-    (sum: number, item: any) => sum + (Number(item.jumlah) || 0) * (Number(item.harga) || 0),
-    0
+    (sum, item) => sum + (Number(item.jumlah) || 0) * (Number(item.harga) || 0),
+    0,
   )
   const ppn = data.kenaPpn ? subtotal * 0.11 : 0
   const grandTotal = subtotal + ppn
@@ -24,7 +59,7 @@ export function generatePdfDefinition(data: any) {
                 height: 70,
               },
               [
-                { text: (data.header1 || '').toUpperCase(), style: 'header' },
+                { text: (data.header1 || 'PT LUMA').toUpperCase(), style: 'header' },
                 { text: (data.header2 || '').toUpperCase(), style: 'subheader' },
                 { text: data.header3 || '', style: 'small' },
               ],
@@ -34,7 +69,7 @@ export function generatePdfDefinition(data: any) {
                 width: '*',
                 alignment: 'center',
                 stack: [
-                  { text: (data.header1 || '').toUpperCase(), style: 'header' },
+                  { text: (data.header1 || 'PT LUMA').toUpperCase(), style: 'header' },
                   { text: (data.header2 || '').toUpperCase(), style: 'subheader' },
                   { text: data.header3 || '', style: 'small' },
                 ],
@@ -62,9 +97,9 @@ export function generatePdfDefinition(data: any) {
             width: '*',
             text: [
               { text: 'Nomor PO    : ', bold: true },
-              `${data.nomor_surat}\n`,
+              `${data.nomor_surat || '-'}\n`,
               { text: 'Perihal        : ', bold: true },
-              `${data.perihal}\n`,
+              `${data.perihal || '-'}\n`,
               { text: 'Ref. Penawaran : ', bold: true },
               `${data.ref_penawaran || '-'}\n`,
             ],
@@ -72,7 +107,7 @@ export function generatePdfDefinition(data: any) {
           {
             width: 'auto',
             alignment: 'right',
-            text: `${data.tempat_tanggal}`,
+            text: `${data.tempat_tanggal || '-'}`,
           },
         ],
         margin: [0, 0, 0, 15],
@@ -80,15 +115,17 @@ export function generatePdfDefinition(data: any) {
       {
         text: [
           'Kepada Yth. Rekanan / Vendor:\n',
-          { text: `${data.vendor_nama}\n`, bold: true },
+          { text: `${data.vendor_nama || data.vendor_perusahaan || '-'}\n`, bold: true },
           `${data.vendor_perusahaan ? data.vendor_perusahaan + '\n' : ''}`,
-          `${data.vendor_alamat}\n`,
+          `${data.vendor_alamat || ''}\n`,
           `${data.vendor_kontak ? 'Kontak: ' + data.vendor_kontak + '\n' : ''}\n`,
         ],
         margin: [0, 0, 0, 5],
       },
       {
-        text: data.pembuka || 'Dengan hormat,\nMerujuk pada kesepakatan dan penawaran harga yang telah diberikan, bersama ini kami menerbitkan Surat Pesanan (Purchase Order) untuk pengadaan barang berikut:',
+        text:
+          data.pembuka ||
+          'Dengan hormat,\nMerujuk pada kesepakatan dan penawaran harga yang telah diberikan, bersama ini kami menerbitkan Surat Pesanan (Purchase Order) untuk pengadaan barang berikut:',
         margin: [0, 0, 0, 10],
       },
       {
@@ -104,15 +141,15 @@ export function generatePdfDefinition(data: any) {
               { text: 'Harga Satuan', style: 'tableHeader', alignment: 'right' },
               { text: 'Total', style: 'tableHeader', alignment: 'right' },
             ],
-            ...data.items.map((item: any, idx: number) => {
+            ...(data.items || []).map((item, idx) => {
               const totalItem = (Number(item.jumlah) || 0) * (Number(item.harga) || 0)
               return [
-                { text: String(idx + 1), alignment: 'center' },
+                { text: String(idx + 1), alignment: 'center' as const },
                 item.nama || '-',
-                { text: String(item.jumlah || 1), alignment: 'center' },
-                { text: item.satuan || 'Pcs', alignment: 'center' },
-                { text: rupiah(item.harga), alignment: 'right' },
-                { text: rupiah(totalItem), alignment: 'right' },
+                { text: String(item.jumlah || 1), alignment: 'center' as const },
+                { text: item.satuan || 'Pcs', alignment: 'center' as const },
+                { text: rupiah(item.harga), alignment: 'right' as const },
+                { text: rupiah(totalItem), alignment: 'right' as const },
               ]
             }),
             [
@@ -126,12 +163,12 @@ export function generatePdfDefinition(data: any) {
             ...(data.kenaPpn
               ? [
                   [
-                    { text: 'PPN 11%', colSpan: 5, bold: true, alignment: 'right' },
+                    { text: 'PPN 11%', colSpan: 5, bold: true, alignment: 'right' as const },
                     {},
                     {},
                     {},
                     {},
-                    { text: rupiah(ppn), bold: true, alignment: 'right' },
+                    { text: rupiah(ppn), bold: true, alignment: 'right' as const },
                   ],
                 ]
               : []),
@@ -160,7 +197,9 @@ export function generatePdfDefinition(data: any) {
         margin: [0, 0, 0, 5],
       },
       {
-        text: data.penutup || 'Demikian surat pesanan ini kami buat untuk dapat diproses secepatnya. Atas kerja samanya kami ucapkan terima kasih.',
+        text:
+          data.penutup ||
+          'Demikian surat pesanan ini kami buat untuk dapat diproses secepatnya. Atas kerja samanya kami ucapkan terima kasih.',
         margin: [0, 0, 0, 20],
       },
       {
@@ -173,7 +212,7 @@ export function generatePdfDefinition(data: any) {
           {
             width: '*',
             alignment: 'center',
-            text: `Pemesan,\n${data.pemesan_perusahaan || 'PT Maju Bersama'}\n\n\n\n\n(${data.pemesan_nama || 'Nama Penandatangan'})`,
+            text: `Pemesan,\n${data.pemesan_perusahaan || 'PT Luma'}\n\n\n\n\n(${data.pemesan_nama || 'Nama Penandatangan'})`,
           },
         ],
       },

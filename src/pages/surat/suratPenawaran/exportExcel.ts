@@ -478,10 +478,7 @@ export async function createQuotationExcel(
     }
   })
 
-  // Subtotal dihitung dari rincian, sedangkan PPN berasal dari input manual.
-  const { subtotal } = calculateTotals(items)
-  const tax = Math.max(0, Number(data.ppnAmount) || 0)
-  const grandTotal = subtotal + tax
+  const { subtotal, tax, grandTotal } = calculateTotals(items, data)
 
   setNumber(
     xml,

@@ -27,8 +27,13 @@ export async function showConfirm(
   text: string,
   confirmButtonText = 'Ya, lanjutkan',
 ) {
+  const isDestructive = /hapus|batalkan/i.test(`${title} ${confirmButtonText}`)
   const result = await Swal.fire({
     ...baseOptions,
+    customClass: {
+      ...baseOptions.customClass,
+      confirmButton: isDestructive ? 'app-swal-confirm-danger' : 'app-swal-confirm',
+    },
     icon: 'warning',
     title,
     text,

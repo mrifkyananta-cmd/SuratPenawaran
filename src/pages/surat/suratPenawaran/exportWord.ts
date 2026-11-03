@@ -166,6 +166,44 @@ export async function createQuotationWord(
       ]
     }
 
+    const lowerText = content.text.toLowerCase()
+    if (
+      (lowerText.includes('[signature]') || lowerText.includes('[signatur')) &&
+      data.signatureImage
+    ) {
+      return [
+        new Paragraph({
+          alignment: AlignmentType.LEFT,
+          children: [
+            new ImageRun({
+              type: 'png',
+              data: dataUrlToUint8Array(data.signatureImage),
+              transformation: { width: 130, height: 65 },
+            }),
+          ],
+        }),
+      ]
+    }
+    if (
+      (lowerText.includes('[company stamp]') ||
+        lowerText.includes('[company-stamp]') ||
+        lowerText.includes('[stamp]')) &&
+      data.stampImage
+    ) {
+      return [
+        new Paragraph({
+          alignment: AlignmentType.LEFT,
+          children: [
+            new ImageRun({
+              type: 'png',
+              data: dataUrlToUint8Array(data.stampImage),
+              transformation: { width: 90, height: 90 },
+            }),
+          ],
+        }),
+      ]
+    }
+
     return content.text.split(/\r?\n/).map(
       (line) =>
         new Paragraph({
@@ -399,88 +437,6 @@ export async function createQuotationWord(
     ],
   })
 
-  // ----- Tanda tangan dan stempel di bagian akhir surat -----
-  const signatureParagraphs = []
-
-  if (data.signatureImage) {
-    signatureParagraphs.push(
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: {
-          before: 120,
-          after: 40,
-        },
-        children: [
-          new ImageRun({
-            type: 'png',
-            data: dataUrlToUint8Array(data.signatureImage),
-            transformation: {
-              width: 130,
-              height: 65,
-            },
-          }),
-        ],
-      }),
-    )
-  }
-
-  if (data.stampImage) {
-    signatureParagraphs.push(
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: {
-          before: 40,
-          after: 80,
-        },
-        children: [
-          new ImageRun({
-            type: 'png',
-            data: dataUrlToUint8Array(data.stampImage),
-            transformation: {
-              width: 90,
-              height: 90,
-            },
-          }),
-        ],
-      }),
-    )
-  }
-
-  if (data.signer) {
-    signatureParagraphs.push(
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: {
-          before: 80,
-          after: 0,
-        },
-        children: [
-          new TextRun({
-            text: data.signer,
-            bold: true,
-            underline: 
-            {
-              type: 'single',
-            },
-          }),
-        ],
-      }),
-    )
-  }
-
-  if (data.position) {
-    signatureParagraphs.push(
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [
-          new TextRun({
-            text: data.position,
-          }),
-        ],
-      }),
-    )
-  }
-
   const document = new Document({
     creator: data.senderCompany,
     title: `Surat Penawaran ${data.number}`,
@@ -528,7 +484,6 @@ export async function createQuotationWord(
         },
         children: [
           bodyTable,
-          ...signatureParagraphs,
         ],
       },
     ],

@@ -55,15 +55,19 @@ model Quotation {
   followUpStatus String  @default("Belum dijadwalkan")
   followUpNotes  String?
 
-  pdfUrl String?
+  pdfUrl     String?
+  templateId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  template       LetterTemplate?       @relation(fields: [templateId], references: [id], onDelete: SetNull)
   items          QuotationItem[]
   attachments    QuotationAttachment[]
   purchaseOrders PurchaseOrder[]
   invoices       Invoice[]
+
+  @@index([templateId])
 }
 
 model QuotationItem {
@@ -111,9 +115,10 @@ model PurchaseOrder {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  quotation   Quotation?                @relation(fields: [quotationId], references: [id], onDelete: SetNull)
-  invoices    Invoice[]
-  attachments PurchaseOrderAttachment[]
+  quotation       Quotation?                @relation(fields: [quotationId], references: [id], onDelete: SetNull)
+  invoices        Invoice[]
+  attachments     PurchaseOrderAttachment[]
+  letterDocuments LetterDocument[]
 
   @@index([quotationId])
   @@index([date])
@@ -248,3 +253,48 @@ model InvoiceStatusHistory {
 
   @@index([invoiceId, createdAt])
 }
+
+model LetterDocument {
+  id              String          @id @default(uuid())
+  type            String
+  number          String
+  title           String
+  partyName       String          @default("")
+  date            String
+  status          String          @default("Draft")
+  payload         Json
+  purchaseOrderId String?
+  templateId      String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  purchaseOrder   PurchaseOrder?  @relation(fields: [purchaseOrderId], references: [id], onDelete: SetNull)
+  template        LetterTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([type, updatedAt])
+  @@index([purchaseOrderId])
+  @@index([templateId])
+}
+
+model LetterTemplate {
+  id               String          @id @default(uuid())
+  name             String
+  letterType       String
+  description      String?
+  originalFilename String
+  storedFilename   String
+  fileFormat       String
+  fileSize         Int
+  mimeType         String
+  isActive         Boolean         @default(true)
+  createdBy        String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  letterDocuments  LetterDocument[]
+  quotations       Quotation[]
+
+  @@index([letterType, isActive])
+}
+
+

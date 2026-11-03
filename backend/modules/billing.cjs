@@ -11,7 +11,6 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024, files: 1 },
 })
 const UPLOAD_DIR = path.join(__dirname, '..', 'uploads')
-const PORT = Number(process.env.PORT || 3001)
 const MAX_CENTS = 10n ** 18n - 1n
 
 class HttpError extends Error {
@@ -29,7 +28,9 @@ function sendError(res, error) {
   if (error instanceof HttpError) return res.status(error.status).json({ error: error.message })
   if (error?.code === 'P2002') return res.status(409).json({ error: 'Nomor dokumen atau referensi sudah digunakan.' })
   if (error?.code === 'P2003') return res.status(409).json({ error: 'Relasi dokumen tidak valid atau masih digunakan.' })
-  console.error('Billing API request failed:', error)
+  if (error?.code === 'P2025') return res.status(404).json({ error: 'Dokumen tidak ditemukan.' })
+  if (error?.code === 'P2023') return res.status(400).json({ error: 'ID dokumen tidak valid.' })
+  console.error('Billing API request failed:', error?.code || error?.name || 'unknown error')
   return res.status(500).json({ error: 'Terjadi kesalahan server. Silakan coba kembali.' })
 }
 
@@ -208,8 +209,8 @@ function derivedInvoice(invoice, payments = invoice.payments || []) {
   if (invoice.status === 'ISSUED') {
     if (balance < 0n) status = 'REVIEW_REQUIRED'
     else if (balance === 0n) status = 'PAID'
-    else if (paid > 0n) status = 'PARTIALLY_PAID'
     else if (invoice.dueDate.toISOString().slice(0, 10) < new Date().toISOString().slice(0, 10)) status = 'OVERDUE'
+    else if (paid > 0n) status = 'PARTIALLY_PAID'
   }
   const { payments: ignoredPayments, ...base } = invoice
   void ignoredPayments
@@ -250,6 +251,9 @@ function secureTokenMatches(provided) {
 }
 
 function requireVerifier(req) {
+  if (req.user && req.user.role !== 'ADMIN') {
+    fail(403, 'Akses ditolak: hanya administrator yang berwenang memverifikasi atau membatalkan pembayaran terverifikasi.')
+  }
   if (!process.env.PAYMENT_VERIFICATION_TOKEN) fail(503, 'Verifikasi pembayaran belum dikonfigurasi oleh administrator.')
   if (!secureTokenMatches(req.get('x-payment-verification-token'))) fail(403, 'Kode verifikasi tidak valid.')
 }
@@ -278,11 +282,11 @@ async function saveAttachment(file, ownerId, model, foreignKey) {
     return await model.create({
       data: {
         [foreignKey]: ownerId,
-        name: path.basename(file.originalname).slice(0, 250),
+        name: path.basename(file.originalname || 'lampiran').slice(0, 250),
         filename,
         mimeType: file.mimetype,
         size: file.size,
-        url: `http://localhost:${PORT}/uploads/${filename}`,
+        url: `/uploads/${filename}`,
       },
     })
   } catch (error) {
@@ -293,8 +297,8 @@ async function saveAttachment(file, ownerId, model, foreignKey) {
 
 async function deleteAttachment(record, model) {
   await model.delete({ where: { id: record.id } })
-  await fs.unlink(path.join(UPLOAD_DIR, record.filename)).catch((error) => {
-    if (error.code !== 'ENOENT') console.error('Attachment file cleanup failed:', error.message)
+  await fs.unlink(path.join(UPLOAD_DIR, path.basename(record.filename))).catch((error) => {
+    if (error.code !== 'ENOENT') console.error('Attachment file cleanup failed:', error.code || error.name)
   })
 }
 
@@ -396,16 +400,16 @@ router.patch('/purchase-orders/:id', asyncRoute(async (req, res) => {
     if (!existing) fail(404, 'Purchase Order tidak ditemukan.')
     if (existing.status === 'CANCELLED') fail(409, 'Purchase Order yang dibatalkan tidak dapat diubah.')
     if (existing.invoices.some((invoice) => invoice.status !== 'CANCELLED')) fail(409, 'Purchase Order yang sudah memiliki invoice aktif tidak dapat diubah.')
-    const quotationId = body.quotationId || null
+    const quotationId = body.quotationId === undefined ? existing.quotationId : (body.quotationId || null)
     if (quotationId && !await tx.quotation.findUnique({ where: { id: quotationId }, select: { id: true } })) fail(400, 'Quotation yang dipilih tidak ditemukan.')
-    const amount = body.amount == null || body.amount === '' ? null : new Prisma.Decimal(formatCents(parseCents(body.amount, 'Nilai PO')))
+    const amount = body.amount === undefined ? existing.amount : (body.amount == null || body.amount === '' ? null : new Prisma.Decimal(formatCents(parseCents(body.amount, 'Nilai PO'))))
     return tx.purchaseOrder.update({ where: { id: existing.id }, data: {
       poNumber: docNumber(body.poNumber, 'Nomor PO'),
       date: dateValue(body.date, 'Tanggal PO'),
       receivedAt: optionalDate(body.receivedAt, 'Tanggal diterima') || existing.receivedAt,
       recipient: text(body.recipient, 'Nama customer', 250),
       amount,
-      notes: optionalText(body.notes),
+      notes: body.notes === undefined ? existing.notes : optionalText(body.notes),
       quotationId,
     }, include: { quotation: { select: { id: true, number: true, recipient: true } }, attachments: true } })
   })
@@ -425,12 +429,18 @@ router.patch('/purchase-orders/:id/cancel', asyncRoute(async (req, res) => {
 }))
 
 router.post('/purchase-orders/:id/attachments', upload.single('file'), asyncRoute(async (req, res) => {
-  if (!await req.prisma.purchaseOrder.findUnique({ where: { id: req.params.id }, select: { id: true } })) fail(404, 'Purchase Order tidak ditemukan.')
+  const purchaseOrder = await req.prisma.purchaseOrder.findUnique({ where: { id: req.params.id }, include: { invoices: { select: { status: true } } } })
+  if (!purchaseOrder) fail(404, 'Purchase Order tidak ditemukan.')
+  if (purchaseOrder.status === 'CANCELLED') fail(409, 'Lampiran tidak dapat ditambahkan ke PO yang dibatalkan.')
+  if (purchaseOrder.invoices.some((invoice) => invoice.status !== 'CANCELLED')) fail(409, 'PO dengan invoice aktif tidak dapat diubah.')
   const attachment = await saveAttachment(req.file, req.params.id, req.prisma.purchaseOrderAttachment, 'purchaseOrderId')
   res.status(201).json(attachment)
 }))
 
 router.delete('/purchase-orders/:id/attachments/:attachmentId', asyncRoute(async (req, res) => {
+  const purchaseOrder = await req.prisma.purchaseOrder.findUnique({ where: { id: req.params.id }, include: { invoices: { select: { status: true } } } })
+  if (!purchaseOrder) fail(404, 'Purchase Order tidak ditemukan.')
+  if (purchaseOrder.invoices.some((invoice) => invoice.status !== 'CANCELLED')) fail(409, 'Lampiran PO dengan invoice aktif dipertahankan sebagai riwayat.')
   const record = await req.prisma.purchaseOrderAttachment.findFirst({ where: { id: req.params.attachmentId, purchaseOrderId: req.params.id } })
   if (!record) fail(404, 'Lampiran PO tidak ditemukan.')
   await deleteAttachment(record, req.prisma.purchaseOrderAttachment)
@@ -508,7 +518,7 @@ router.patch('/invoices/:id/issue', asyncRoute(async (req, res) => {
     if (existing.status !== 'DRAFT') fail(409, 'Hanya invoice Draft yang dapat diterbitkan.')
     if (existing.items.length === 0 || decimalCents(existing.total) <= 0n) fail(400, 'Invoice harus memiliki item dan total yang valid.')
     return tx.invoice.update({ where: { id: existing.id }, data: {
-      status: 'ISSUED', issueDate: new Date(),
+      status: 'ISSUED', issueDate: existing.issueDate || new Date(),
       statusHistory: { create: { fromStatus: 'DRAFT', toStatus: 'ISSUED', note: 'Invoice diterbitkan.' } },
     }, include: invoiceInclude })
   })
@@ -673,7 +683,7 @@ router.delete('/payments/:id/attachments/:attachmentId', asyncRoute(async (req, 
 router.use((error, _req, res, _next) => {
   if (error instanceof multer.MulterError) return res.status(400).json({ error: error.code === 'LIMIT_FILE_SIZE' ? 'Ukuran file maksimal 10 MB.' : 'File tidak dapat diproses.' })
   if (error instanceof HttpError) return res.status(error.status).json({ error: error.message })
-  console.error('Billing upload failed:', error)
+  console.error('Billing upload failed:', error?.code || error?.name || 'unknown error')
   return res.status(500).json({ error: 'Upload tidak berhasil. Silakan coba kembali.' })
 })
 

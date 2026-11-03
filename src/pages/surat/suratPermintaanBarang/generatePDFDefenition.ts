@@ -1,4 +1,37 @@
-export function generatePdfDefinition(data: any) {
+import type pdfMake from 'pdfmake/build/pdfmake'
+
+type PdfDocDefinition = Parameters<typeof pdfMake.createPdf>[0]
+
+export interface PermintaanBarangItem {
+  nama: string
+  jumlah: number
+  satuan: string
+  keterangan: string
+}
+
+export interface PermintaanBarangFormData {
+  logo: string
+  header1: string
+  header2: string
+  header3: string
+  nomor_surat: string
+  lampiran: string
+  perihal: string
+  tempat_tanggal: string
+  tujuan_nama: string
+  tujuan_jabatan: string
+  tujuan_perusahaan: string
+  tujuan_alamat: string
+  pembuka: string
+  items: PermintaanBarangItem[]
+  penutup: string
+  mengetahui_jabatan: string
+  mengetahui_nama: string
+  pemohon_jabatan: string
+  pemohon_nama: string
+}
+
+export function generatePdfDefinition(data: PermintaanBarangFormData): PdfDocDefinition {
   return {
     content: [
       {
@@ -10,7 +43,7 @@ export function generatePdfDefinition(data: any) {
                 height: 70,
               },
               [
-                { text: (data.header1 || '').toUpperCase(), style: 'header' },
+                { text: (data.header1 || 'PT LUMA').toUpperCase(), style: 'header' },
                 { text: (data.header2 || '').toUpperCase(), style: 'subheader' },
                 { text: data.header3 || '', style: 'small' },
               ],
@@ -20,7 +53,7 @@ export function generatePdfDefinition(data: any) {
                 width: '*',
                 alignment: 'center',
                 stack: [
-                  { text: (data.header1 || '').toUpperCase(), style: 'header' },
+                  { text: (data.header1 || 'PT LUMA').toUpperCase(), style: 'header' },
                   { text: (data.header2 || '').toUpperCase(), style: 'subheader' },
                   { text: data.header3 || '', style: 'small' },
                 ],
@@ -48,17 +81,17 @@ export function generatePdfDefinition(data: any) {
             width: '*',
             text: [
               { text: 'Nomor       : ', bold: true },
-              `${data.nomor_surat}\n`,
+              `${data.nomor_surat || '-'}\n`,
               { text: 'Lampiran  : ', bold: true },
-              `${data.lampiran}\n`,
+              `${data.lampiran || '-'}\n`,
               { text: 'Perihal      : ', bold: true },
-              `${data.perihal}\n`,
+              `${data.perihal || '-'}\n`,
             ],
           },
           {
             width: 'auto',
             alignment: 'right',
-            text: `${data.tempat_tanggal}`,
+            text: `${data.tempat_tanggal || '-'}`,
           },
         ],
         margin: [0, 0, 0, 15],
@@ -66,15 +99,17 @@ export function generatePdfDefinition(data: any) {
       {
         text: [
           'Kepada Yth.\n',
-          { text: `${data.tujuan_nama}\n`, bold: true },
+          { text: `${data.tujuan_nama || '-'}\n`, bold: true },
           `${data.tujuan_jabatan ? data.tujuan_jabatan + '\n' : ''}`,
           `${data.tujuan_perusahaan ? data.tujuan_perusahaan + '\n' : ''}`,
-          `${data.tujuan_alamat}\n\n`,
+          `${data.tujuan_alamat || ''}\n\n`,
         ],
         margin: [0, 0, 0, 5],
       },
       {
-        text: data.pembuka || 'Dengan hormat,\nBersama surat ini kami mengajukan permohonan pengadaan/permintaan barang untuk mendukung kebutuhan operasional dengan rincian sebagai berikut:',
+        text:
+          data.pembuka ||
+          'Dengan hormat,\nBersama surat ini kami mengajukan permohonan pengadaan/permintaan barang untuk mendukung kebutuhan operasional dengan rincian sebagai berikut:',
         margin: [0, 0, 0, 10],
       },
       {
@@ -89,11 +124,11 @@ export function generatePdfDefinition(data: any) {
               { text: 'Satuan', style: 'tableHeader', alignment: 'center' },
               { text: 'Keterangan', style: 'tableHeader' },
             ],
-            ...data.items.map((item: any, idx: number) => [
-              { text: String(idx + 1), alignment: 'center' },
+            ...(data.items || []).map((item, idx) => [
+              { text: String(idx + 1), alignment: 'center' as const },
               item.nama || '-',
-              { text: String(item.jumlah || 1), alignment: 'center' },
-              { text: item.satuan || 'Pcs', alignment: 'center' },
+              { text: String(item.jumlah || 1), alignment: 'center' as const },
+              { text: item.satuan || 'Pcs', alignment: 'center' as const },
               item.keterangan || '-',
             ]),
           ],
@@ -104,7 +139,9 @@ export function generatePdfDefinition(data: any) {
         margin: [0, 0, 0, 15],
       },
       {
-        text: data.penutup || 'Demikian surat permintaan barang ini kami sampaikan. Atas perhatian, persetujuan, dan kerjasamanya kami ucapkan terima kasih.',
+        text:
+          data.penutup ||
+          'Demikian surat permintaan barang ini kami sampaikan. Atas perhatian, persetujuan, dan kerjasamanya kami ucapkan terima kasih.',
         margin: [0, 0, 0, 20],
       },
       {

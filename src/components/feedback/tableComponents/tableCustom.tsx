@@ -109,7 +109,7 @@ export function TableCustom<T, P>({
         className={`scrollbar flex w-full flex-col overflow-auto ${maxHeight}`}
         // style={{ scrollbarGutter: 'stable' }}
       >
-        <table className="scrollbar h-full flex-1 border-collapse font-sans text-[2rem]">
+        <table className="scrollbar h-full flex-1 border-collapse font-sans text-[1.35rem]">
           <thead className="relative z-10 border align-middle leading-medium">
             <tr className={`border ${colorBorder} ${theadClassName}`}>
               {/* --- NO --- */}

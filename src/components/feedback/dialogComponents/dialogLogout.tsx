@@ -54,11 +54,11 @@ export function DialogLogout({
           </p>
           <div className="flex items-center justify-end gap-0 text-[2rem]">
             <Button
-              color="bg-transparent"
+              color="border border-[#B91C1C] bg-[#B91C1C]"
               fx={() => setIsOpen(false)}
               label="Batalkan"
               type="button"
-              text="text-portal-violet"
+              text="text-white font-semibold"
             />
 
             {child}

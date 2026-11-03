@@ -52,7 +52,7 @@ export function Searching({
           },
         )}
       >
-        <SearchIcon size="14" />
+        <SearchIcon size="14" className="text-[#64748B]" />
       </div>
       {isAdditionIcon && (
         <div
@@ -68,7 +68,7 @@ export function Searching({
         placeholder="Cari"
         value={inputValue} // Controlled by local state
         className={cn(
-          `disabled:text-formText-disabled border-input text-sm placeholder:text-muted-foreground disabled:bg-form-disabled focus:shadow-primary-shade-1 h-[4.8rem] flex-grow ${rounded} border border-gray-300 bg-[#F8F7FD] py-16 transition-all duration-300 file:border-0 file:bg-transparent file:text-[2rem] file:font-medium focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 phones:pl-64`,
+          `disabled:text-formText-disabled border-input text-sm text-[#475569] placeholder:text-[#64748B] disabled:bg-form-disabled focus:shadow-primary-shade-1 h-[4.8rem] flex-grow ${rounded} border border-gray-300 bg-[#F8F7FD] py-16 transition-all duration-300 file:border-0 file:bg-transparent file:text-[2rem] file:font-medium focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 phones:pl-64`,
           position === 'end'
             ? `${isAdditionIcon ? 'pl-48' : 'pl-24'} pr-48 phones:pl-24`
             : `pl-48 ${isAdditionIcon ? 'pr-48' : 'pr-16'}`,

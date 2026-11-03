@@ -7,7 +7,7 @@ import tseslint from 'typescript-eslint' // ESLint configuration for TypeScript
 
 // Export the ESLint configuration using TypeScript-eslint's configuration function
 export default tseslint.config(
-  { ignores: ['dist'] }, // Directories to be ignored by ESLint (e.g., build output)
+  { ignores: ['dist/**', 'backend/**', 'node_modules/**', 'playwright-report/**', 'test-results/**'] },
   {
     // Extend ESLint's recommended configuration along with TypeScript's recommended rules
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -29,6 +29,7 @@ export default tseslint.config(
     // Custom rules, merging the recommended React Hooks rules with additional ones
     rules: {
       ...reactHooks.configs.recommended.rules, // Use all recommended React Hooks rules
+      '@typescript-eslint/no-explicit-any': 'warn',
       'react-refresh/only-export-components': [
         'warn', // Issue a warning when components are not exported properly for React Refresh
         { allowConstantExport: true }, // Allow constant exports to not trigger the warning

@@ -1,6 +1,4 @@
-// Import the necessary modules from 'react-router-dom' for setting up routes
-import { createBrowserRouter } from 'react-router-dom'
-// Import dynamically loaded components (HomePage, MainLayout, NotFoundPage) using loadable
+import { createBrowserRouter, Navigate, useLocation, useParams } from 'react-router-dom'
 import {
   HomePage,
   MainLayout,
@@ -9,27 +7,34 @@ import {
   PurchaseOrderPage,
   InvoicePage,
   PaymentPage,
-  SuratHomePage,
-  SuratPage,
 } from './loadables'
 import SuratPenawaran from '@/pages/surat/suratPenawaran'
 import SuratPermintaanBarang from '@/pages/surat/suratPermintaanBarang'
 import SuratPesanan from '@/pages/surat/suratPesanan'
 import SuratPerjanjianJualBeli from '@/pages/surat/suratPerjanjianJualBeli'
 
-// Create a router configuration using 'createBrowserRouter' to define application routes
+const VALID_SURAT_SLUGS = new Set([
+  'surat-penawaran',
+  'surat-permintaan-barang',
+  'surat-pesanan',
+  'surat-perjanjian-jual-beli',
+])
+
+function LegacySuratRedirect() {
+  const location = useLocation()
+  const { slug } = useParams<{ slug?: string }>()
+  if (slug && VALID_SURAT_SLUGS.has(slug)) {
+    return <Navigate to={`/quotation/${slug}${location.search}`} state={location.state} replace />
+  }
+  return <Navigate to={`/quotation${location.search}`} state={location.state} replace />
+}
+
 export const router = createBrowserRouter([
   {
-    // Define the root path '/' for the application
-    // The MainLayout component is the main wrapper for the layout of the app
     path: '/',
     element: <MainLayout />,
-
-    // Define the child routes inside the MainLayout, in this case, the homepage
     children: [
       {
-        // Define the child route for the home page
-        // It loads the HomePage component when the root path is accessed
         path: '',
         element: <HomePage />,
       },
@@ -37,52 +42,44 @@ export const router = createBrowserRouter([
         path: 'quotation',
         element: <QuotationPage />,
       },
+      {
+        path: 'quotation/surat-penawaran',
+        element: <SuratPenawaran />,
+      },
+      {
+        path: 'quotation/surat-permintaan-barang',
+        element: <SuratPermintaanBarang />,
+      },
+      {
+        path: 'quotation/surat-pesanan',
+        element: <SuratPesanan />,
+      },
+      {
+        path: 'quotation/surat-perjanjian-jual-beli',
+        element: <SuratPerjanjianJualBeli />,
+      },
       { path: 'po', element: <PurchaseOrderPage /> },
       { path: 'invoice', element: <InvoicePage /> },
       { path: 'bukti-bayar', element: <PaymentPage /> },
       {
         path: 'surat',
-        element: <SuratPage />,
-        children: [
-          {
-            path: '',
-            element: <SuratHomePage />,
-          },
-          {
-            path: 'surat-penawaran',
-            element: <SuratPenawaran />,
-          },
-          {
-            path: 'surat-permintaan-barang',
-            element: <SuratPermintaanBarang />,
-          },
-          {
-            path: 'surat-pesanan',
-            element: <SuratPesanan />,
-          },
-          {
-            path: 'surat-perjanjian-jual-beli',
-            element: <SuratPerjanjianJualBeli />,
-          },
-          {
-            // Define a wildcard '*' route that will match any path that doesn't exist
-            // This route is used to display the NotFoundPage for undefined routes
-            path: '*',
-            element: <NotFoundPage />,
-          },
-        ],
+        element: <LegacySuratRedirect />,
       },
       {
-        // Define a wildcard '*' route that will match any path that doesn't exist
-        // This route is used to display the NotFoundPage for undefined routes
+        path: 'surat/:slug',
+        element: <LegacySuratRedirect />,
+      },
+      {
+        path: 'surat/*',
+        element: <LegacySuratRedirect />,
+      },
+      {
         path: '*',
         element: <NotFoundPage />,
       },
     ],
   },
   {
-    // Define a wildcard '*' route that will match any path that doesn't exist
-    // This route is used to display the NotFoundPage for undefined routes
     path: '*',
     element: <NotFoundPage />,
   },

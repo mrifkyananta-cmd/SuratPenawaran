@@ -1,4 +1,34 @@
-export function generatePdfDefinition(data: any) {
+import type pdfMake from 'pdfmake/build/pdfmake'
+
+type PdfDocDefinition = Parameters<typeof pdfMake.createPdf>[0]
+
+export interface PerjanjianJualBeliFormData {
+  title: string
+  nomor_surat: string
+  hari: string
+  tanggal: string
+  tempat: string
+  penjual_nama: string
+  penjual_nik: string
+  penjual_pekerjaan: string
+  penjual_alamat: string
+  penjual_telepon: string
+  pembeli_nama: string
+  pembeli_nik: string
+  pembeli_pekerjaan: string
+  pembeli_alamat: string
+  pembeli_telepon: string
+  pasal1_objek: string
+  pasal1_spesifikasi: string
+  pasal2_harga: string
+  pasal2_pembayaran: string
+  pasal3_penyerahan: string
+  pasal4_sengketa: string
+  saksi1_nama: string
+  saksi2_nama: string
+}
+
+export function generatePdfDefinition(data: PerjanjianJualBeliFormData): PdfDocDefinition {
   return {
     content: [
       {
@@ -27,7 +57,7 @@ export function generatePdfDefinition(data: any) {
         margin: [0, 0, 0, 15],
       },
       {
-        text: `Pada hari ini, ${data.hari || 'Senin'}, tanggal ${data.tanggal || '26 September 2026'}, bertempat di ${data.tempat || 'Jakarta'}, kami yang bertanda tangan di bawah ini:`,
+        text: `Pada hari ini, ${data.hari || '-'}, tanggal ${data.tanggal || '-'}, bertempat di ${data.tempat || 'Jakarta'}, kami yang bertanda tangan di bawah ini:`,
         margin: [0, 0, 0, 10],
       },
       {
@@ -72,40 +102,40 @@ export function generatePdfDefinition(data: any) {
         text: 'Kedua belah pihak telah sepakat untuk mengikatkan diri dalam Surat Perjanjian Jual Beli dengan ketentuan dan syarat-syarat sebagaimana tercantum dalam pasal-pasal berikut:',
         margin: [0, 0, 0, 10],
       },
-      // Pasal 1
       {
         text: 'Pasal 1\nOBJEK JUAL BELI',
         style: 'pasalHeader',
       },
       {
-        text: `PIHAK PERTAMA menyatakan menjual kepada PIHAK KEDUA, dan PIHAK KEDUA menyatakan membeli dari PIHAK PERTAMA berupa:\n${data.pasal1_objek || '1 (satu) unit kendaraan/barang sesuai kesepakatan'}.\nKondisi dan spesifikasi barang: ${data.pasal1_spesifikasi || 'Lengkap dan berfungsi normal.'}`,
+        text: `PIHAK PERTAMA menyatakan menjual kepada PIHAK KEDUA, dan PIHAK KEDUA menyatakan membeli dari PIHAK PERTAMA berupa:\n${data.pasal1_objek || 'Barang/jasa sesuai kesepakatan'}.\nKondisi dan spesifikasi barang: ${data.pasal1_spesifikasi || 'Lengkap dan berfungsi normal.'}`,
         margin: [0, 0, 0, 10],
       },
-      // Pasal 2
       {
         text: 'Pasal 2\nHARGA DAN CARA PEMBAYARAN',
         style: 'pasalHeader',
       },
       {
-        text: `1. Harga objek jual beli yang disepakati oleh kedua belah pihak adalah sebesar ${data.pasal2_harga || 'Rp 50.000.000 (Lima Puluh Juta Rupiah)'}.\n2. Tata cara pembayaran yang disepakati adalah: ${data.pasal2_pembayaran || 'Tunai / Transfer lunas pada saat penandatanganan perjanjian ini'}.`,
+        text: `1. Harga objek jual beli yang disepakati oleh kedua belah pihak adalah sebesar ${data.pasal2_harga || '-'}.\n2. Tata cara pembayaran yang disepakati adalah: ${data.pasal2_pembayaran || 'Sesuai kesepakatan tertulis para pihak'}.`,
         margin: [0, 0, 0, 10],
       },
-      // Pasal 3
       {
         text: 'Pasal 3\nPENYERAHAN BARANG & HAK MILIK',
         style: 'pasalHeader',
       },
       {
-        text: data.pasal3_penyerahan || '1. Penyerahan objek jual beli beserta dokumen kepemilikannya dilakukan setelah pembayaran dilunasi oleh PIHAK KEDUA.\n2. Sejak tanggal penandatanganan surat perjanjian ini dan penyerahan barang, seluruh hak milik serta tanggung jawab beralih sepenuhnya kepada PIHAK KEDUA.',
+        text:
+          data.pasal3_penyerahan ||
+          '1. Penyerahan objek jual beli beserta dokumen terkait dilakukan sesuai jadwal yang disepakati.\n2. Sejak serah terima barang dan pelunasan pembayaran, seluruh hak milik serta tanggung jawab beralih kepada PIHAK KEDUA.',
         margin: [0, 0, 0, 10],
       },
-      // Pasal 4
       {
         text: 'Pasal 4\nPENYELESAIAN PERSELISIHAN',
         style: 'pasalHeader',
       },
       {
-        text: data.pasal4_sengketa || 'Apabila di kemudian hari timbul perselisihan yang berkaitan dengan pelaksanaan perjanjian ini, maka kedua belah pihak sepakat untuk menyelesaikannya secara musyawarah untuk mufakat. Apabila musyawarah tidak tercapai, perselisihan akan diselesaikan melalui jalur hukum di Pengadilan Negeri setempat.',
+        text:
+          data.pasal4_sengketa ||
+          'Apabila di kemudian hari timbul perselisihan yang berkaitan dengan pelaksanaan perjanjian ini, maka kedua belah pihak sepakat untuk menyelesaikannya secara musyawarah untuk mufakat. Apabila musyawarah tidak tercapai, perselisihan akan diselesaikan melalui jalur hukum di Pengadilan Negeri setempat.',
         margin: [0, 0, 0, 15],
       },
       {

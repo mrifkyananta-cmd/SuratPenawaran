@@ -22,6 +22,9 @@
     // Use module resolution strategy suitable for bundlers like Vite
     "moduleResolution": "Bundler",
 
+    // Existing application files use value-style imports for types.
+    "verbatimModuleSyntax": false,
+
     // Allow importing TypeScript files with the `.ts` extension from other TypeScript files
     "allowImportingTsExtensions": true,
 

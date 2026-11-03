@@ -1,13 +1,15 @@
+import React from 'react'
+
 export function Button({
   icon,
   label,
   color,
   text,
   disabled,
-  className = 'text-[2rem]',
-  padding = 'px-24 py-12',
+  className = 'text-[1.4rem]',
+  padding = 'px-16 py-8',
   type = 'button',
-  border = 'rounded-2xl',
+  border = 'rounded-xl',
   items = 'items-center',
   justify = 'justify-center',
   fx,
@@ -32,11 +34,11 @@ export function Button({
       type={type}
       disabled={disabled}
       style={style}
-      className={`flex gap-12 font-jakarta hover:bg-opacity-80 disabled:cursor-not-allowed disabled:bg-opacity-50 ${padding} ${color} ${text} ${className} ${border} ${items} ${justify}`}
+      className={`font-jakarta inline-flex gap-8 transition-colors hover:bg-opacity-80 disabled:cursor-not-allowed disabled:bg-opacity-50 ${padding} ${color} ${text} ${className} ${border} ${items} ${justify}`}
       onClick={fx}
     >
       {icon}
-      {label && <p className="text-nowrap">{label}</p>}
+      {label && <span className="whitespace-nowrap">{label}</span>}
     </button>
   )
 }

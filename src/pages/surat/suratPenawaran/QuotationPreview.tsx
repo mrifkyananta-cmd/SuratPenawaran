@@ -163,7 +163,7 @@ export default function QuotationPreview({
       className="flex min-w-0 flex-col gap-8"
       ref={containerRef}
     >
-      <p className="text-slate-600">
+      <p className="text-[#000000]">
         {busy
           ? 'Memperbarui pratinjau...'
           : 'Pratinjau otomatis diperbarui saat isian, tanda tangan, atau stempel berubah.'}
@@ -175,7 +175,7 @@ export default function QuotationPreview({
               href={pdfUrl}
               target="_blank"
               rel="noreferrer"
-              className="underline"
+              className="font-medium text-[#0000FF] underline hover:text-[#0000FF]"
             >
               Buka PDF di tab baru
             </a>
@@ -184,17 +184,17 @@ export default function QuotationPreview({
       </p>
 
       {error && (
-        <p role="alert" className="text-red-700">
+        <p role="alert" className="text-[#000000]">
           {error}
         </p>
       )}
 
       <div
         aria-label="Pratinjau surat penawaran"
-        className="scrollbar flex max-h-[80vh] flex-col gap-12 overflow-auto rounded-xl border border-slate-300 bg-slate-100 p-8"
+        className="scrollbar flex max-h-[80vh] flex-col gap-12 overflow-auto rounded-xl border border-[#E2E8F0] bg-[#F1F5F9] p-8"
       >
         {pages.length === 0 && !error && (
-          <p className="p-16 text-slate-500">
+          <p className="p-16 text-[#000000]">
             Menyiapkan pratinjau...
           </p>
         )}
@@ -204,7 +204,7 @@ export default function QuotationPreview({
             key={`${index}-${source.length}`}
             src={source}
             alt={`Halaman ${index + 1} dari ${pages.length}`}
-            className="w-full bg-white shadow"
+            className="w-full bg-[#FFFFFF] shadow-sm"
           />
         ))}
       </div>

@@ -8,36 +8,148 @@
 
 @layer components {
   .control {
-    @apply w-full min-w-0 rounded-xl border border-slate-300 bg-white px-12 py-10 text-[1.4rem] text-slate-800;
+    @apply min-h-[4.2rem] w-full min-w-0 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-14 py-10 text-[1.4rem] leading-[1.45] text-[#000000] placeholder:text-[#000000] transition-colors;
   }
 
   .control:focus-visible {
-    @apply border-blue-500 outline-none ring-2 ring-blue-100;
+    @apply border-[#0000FF] outline-none ring-2 ring-[#E2E8F0];
+  }
+
+  .invoice-table-container {
+    @apply w-full max-w-full overflow-x-auto rounded-xl border border-[#E2E8F0] bg-[#FFFFFF];
+  }
+
+  .invoice-table {
+    width: 100%;
+    min-width: 112rem;
+    border-collapse: collapse;
+    letter-spacing: 0.01rem;
+  }
+
+  .invoice-table th {
+    @apply border-b border-[#E2E8F0] bg-[#F8FAFC] px-16 py-14 text-[1.3rem] font-semibold leading-[1.45] text-[#000000];
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .invoice-table td {
+    @apply px-16 py-14 text-[1.35rem] leading-[1.5] text-[#000000];
+    vertical-align: middle;
+  }
+
+  .invoice-table .col-number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Semantic Document Category Text Tokens (No colored background) */
+  .badge-doc-offer {
+    background-color: transparent;
+    color: var(--color-document-offer-text);
+  }
+
+  .badge-doc-request {
+    background-color: transparent;
+    color: var(--color-document-request-text);
+  }
+
+  .badge-doc-order {
+    background-color: transparent;
+    color: var(--color-document-order-text);
+  }
+
+  .badge-doc-agreement {
+    background-color: transparent;
+    color: var(--color-document-agreement-text);
+  }
+
+  /* Semantic Action Buttons (Neutral surface, solid 3-color font & icon) */
+  .btn-action-preview {
+    background-color: #ffffff;
+    color: var(--color-action-preview-text);
+    border: 1px solid #e2e8f0;
+    transition: background-color 0.15s ease;
+  }
+  .btn-action-preview:hover:not(:disabled) {
+    background-color: #f8fafc;
+  }
+
+  .btn-action-edit {
+    background-color: #ffffff;
+    color: var(--color-action-edit-text);
+    border: 1px solid #e2e8f0;
+    transition: background-color 0.15s ease;
+  }
+  .btn-action-edit:hover:not(:disabled) {
+    background-color: #f8fafc;
+  }
+
+  .btn-action-download {
+    background-color: #ffffff;
+    color: var(--color-action-download-text);
+    border: 1px solid #e2e8f0;
+    transition: background-color 0.15s ease;
+  }
+  .btn-action-download:hover:not(:disabled) {
+    background-color: #f8fafc;
+  }
+
+  .btn-action-delete {
+    background-color: #b91c1c;
+    color: #ffffff;
+    border: 1px solid #b91c1c;
+    transition: background-color 0.15s ease;
+  }
+  .btn-action-delete:hover:not(:disabled) {
+    background-color: #991b1b;
   }
 }
 
 /* Custom CSS layer for base styles */
 @layer base {
   :root {
-    --app-primary: #1d4ed8;
-    --app-secondary: #475569;
-    --app-success: #15803d;
-    --app-warning: #b45309;
-    --app-danger: #b91c1c;
-    --app-info: #0369a1;
+    /* Tiga warna solid utama untuk tulisan (font) dan ikon */
+    --color-font-blue: #0000ff;
+    --color-font-green: #008000;
+    --color-font-black: #000000;
+
+    --app-primary: #0000ff;
+    --app-primary-hover: #0000ff;
+    --app-primary-soft: #ffffff;
+    --app-text-primary: #000000;
+    --app-text-secondary: #000000;
+    --app-secondary: #000000;
+    --app-success: #008000;
+    --app-warning: #0000ff;
+    --app-danger: #000000;
+    --app-info: #0000ff;
     --app-background: #f8fafc;
     --app-surface: #ffffff;
     --app-border: #e2e8f0;
-    --app-muted: #64748b;
+    --app-muted: #000000;
+    --app-muted-bg: #f1f5f9;
+
+    /* Centralized Document Category Font Tokens */
+    --color-document-offer-text: #0000ff;
+    --color-document-request-text: #008000;
+    --color-document-order-text: #000000;
+    --color-document-agreement-text: #0000ff;
+
+    /* Centralized Semantic Action Font & Icon Tokens */
+    --color-action-preview-text: #000000;
+    --color-action-edit-text: #0000ff;
+    --color-action-download-text: #008000;
+    --color-action-delete-text: #000000;
     /* Defining color scheme variables for light mode */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 0%;
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 0%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 0%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --primary: 221 83% 53%;
@@ -98,6 +210,19 @@
   textarea {
     max-width: 100%;
     min-width: 0;
+    line-height: 1.45;
+  }
+
+  input[type='file']::file-selector-button {
+    margin-right: 1rem;
+    cursor: pointer;
+    border-radius: 0.8rem;
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    padding: 0.6rem 1.2rem;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #000000;
   }
 
   button:disabled,
@@ -114,12 +239,12 @@
 
   body {
     /* Basic body styling: background, font family, size, etc. */
-    @apply bg-app-background font-jakarta text-16 font-normal leading-[1.45] text-slate-800 antialiased;
+    @apply bg-[#F8FAFC] font-jakarta text-16 font-normal leading-[1.45] text-[#000000] antialiased;
   }
 
   /* Apply background to body when 'halaman' exists */
   body:has(#halaman) {
-    @apply bg-background;
+    @apply bg-[#F8FAFC];
   }
 
   /* Main padding styling for body content */
@@ -130,38 +255,43 @@
 
 @layer components {
   .app-swal-popup {
-    @apply max-w-[min(92vw,52rem)] rounded-2xl p-24 font-jakarta;
+    @apply max-w-[min(92vw,52rem)] rounded-2xl border border-[#E2E8F0] bg-[#FFFFFF] p-24 font-jakarta shadow-xl;
   }
 
   .app-swal-title {
-    @apply text-[2.4rem] font-semibold leading-[1.3] text-slate-800;
+    @apply text-[2.2rem] font-semibold leading-[1.3] text-[#000000];
   }
 
   .app-swal-content {
-    @apply text-[1.6rem] leading-[1.5] text-slate-600;
+    @apply text-[1.5rem] leading-[1.5] text-[#000000];
   }
 
   .app-swal-confirm,
+  .app-swal-confirm-danger,
   .app-swal-cancel,
   .app-swal-deny {
-    @apply mx-4 inline-flex min-h-[4rem] items-center justify-center rounded-lg px-16 py-8 text-[1.5rem] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    @apply mx-4 inline-flex min-h-[4rem] items-center justify-center rounded-xl px-16 py-8 text-[1.4rem] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
   }
 
   .app-swal-confirm {
-    @apply bg-app-primary text-white hover:bg-blue-800 focus-visible:ring-app-primary;
+    @apply border border-[#0000FF] bg-[#0000FF] text-white shadow-sm hover:bg-[#0000D0] focus-visible:ring-[#0000FF];
+  }
+
+  .app-swal-confirm-danger {
+    @apply border border-[#B91C1C] bg-[#B91C1C] text-white hover:bg-[#991B1B] focus-visible:ring-[#B91C1C];
   }
 
   .app-swal-cancel {
-    @apply border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-400;
+    @apply border border-[#B91C1C] bg-[#B91C1C] text-white hover:bg-[#991B1B] focus-visible:ring-[#B91C1C];
   }
 
   .app-swal-deny {
-    @apply bg-app-danger text-white hover:bg-red-800 focus-visible:ring-app-danger;
+    @apply border border-[#E2E8F0] bg-[#FFFFFF] text-[#000000] hover:bg-[#F8FAFC] focus-visible:ring-[#000000];
   }
 
   .swal2-input,
   .swal2-textarea {
-    @apply max-w-full rounded-lg border border-slate-300 text-[1.6rem] focus:border-app-primary focus:ring-2 focus:ring-blue-100;
+    @apply max-w-full rounded-xl border border-[#E2E8F0] text-[1.5rem] text-[#000000] focus:border-[#0000FF] focus:ring-2 focus:ring-[#E2E8F0];
   }
 }
 
@@ -188,11 +318,11 @@
   }
 
   .scrollbar-new::-webkit-scrollbar-thumb {
-    background: #282a38;
+    background: #64748b;
   }
 
   .scrollbar-new::-webkit-scrollbar-track {
-    background: #7d95a1;
+    background: #f1f5f9;
     border-left: 3px solid transparent;
     border-right: 3px solid transparent;
     background-clip: padding-box;
@@ -219,21 +349,21 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2.4rem;
   line-height: 1.3;
-  color: #2c3e50;
+  color: #000000;
 }
 
 /* Paragraph styling in articles */
 .article-content p {
   margin-bottom: 10px;
   text-align: justify;
-  color: #34495e;
+  color: #000000;
 }
 
 /* Ordered list (ol) styling in articles */
 .article-content ol {
   margin-bottom: 10px;
   padding-left: 30px;
-  color: #2c3e50;
+  color: #000000;
 }
 
 /* List items (li) styling */
@@ -246,22 +376,22 @@
 /* Styling for strong text (bold) */
 .article-content strong {
   font-weight: bold;
-  color: #e74c3c;
+  color: #000000;
 }
 
 /* Header styling for article titles */
 .article-content h1,
 .article-content h2,
 .article-content h3 {
-  color: #2980b9;
+  color: #000000;
 }
 
 /* Blockquote styling */
 .article-content blockquote {
   font-style: italic;
-  color: #7f8c8d;
+  color: #000000;
   padding-left: 20px;
-  border-left: 4px solid #3498db;
+  border-left: 4px solid #0000ff;
   margin: 20px 0;
 }
 
@@ -274,13 +404,13 @@
 
 /* Link styling */
 .article-content a {
-  color: #3498db;
+  color: #0000ff;
   text-decoration: none;
-  border-bottom: 1px dashed #3498db;
+  border-bottom: 1px dashed #0000ff;
 }
 
 /* Hover effect for links */
 .article-content a:hover {
-  color: #2980b9;
-  border-bottom: 1px solid #2980b9;
+  color: #0000ff;
+  border-bottom: 1px solid #0000ff;
 }

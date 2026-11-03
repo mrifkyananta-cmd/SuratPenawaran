@@ -38,7 +38,7 @@ export function DialogCustom({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent
-        className={`scrollbar flex flex-col overflow-auto border text-[2rem] ${backgroundColor} phones:text-[2rem]`}
+        className={`scrollbar flex flex-col overflow-auto border text-[1.4rem] ${backgroundColor}`}
         position="middle"
         aria-describedby="dialog-description"
         style={{
@@ -52,15 +52,15 @@ export function DialogCustom({
           }
         }}
       >
-        <div className="scrollbar flex h-full flex-col gap-32 overflow-auto p-32 text-[2rem] phones:text-[2rem]">
+        <div className="scrollbar flex h-full flex-col gap-24 overflow-auto p-24 phones:p-16 text-[1.4rem]">
           {/* --- Header --- */}
           <DialogHeader>
             <DialogTitle
-              className={`text-[2.2rem] font-bold phones:text-[2.6rem] ${classNameHeader ?? 'text-center'}`}
+              className={`text-[2rem] font-semibold text-[#000000] ${classNameHeader ?? 'text-center'}`}
             >
               {headerTitle || ''}
             </DialogTitle>
-            <DialogPrimitive.Close className="focus:ring-ring data-[state=open]:text-muted-foreground absolute right-32 top-32 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent">
+            <DialogPrimitive.Close className="focus:ring-ring data-[state=open]:text-muted-foreground absolute right-24 top-24 rounded-lg p-6 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent text-[#000000] hover:text-[#000000]">
               <X size={16} />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
@@ -76,7 +76,7 @@ export function DialogCustom({
           <div className="scrollbar flex h-full w-full flex-1 overflow-auto">
             {textContent}
           </div>
-          {buttonContent && <div className="flex w-full">{buttonContent}</div>}
+          {buttonContent && <div className="flex w-full pt-8">{buttonContent}</div>}
         </div>
       </DialogContent>
     </Dialog>

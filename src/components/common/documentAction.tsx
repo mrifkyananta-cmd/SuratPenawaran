@@ -1,4 +1,4 @@
-import { AlertCircle, Download, Printer } from 'lucide-react'
+import { Download, ExternalLink, Printer } from 'lucide-react'
 import { showError, showSuccess } from '@/utils/notifications'
 
 export default function DocumentActions({
@@ -20,30 +20,33 @@ export default function DocumentActions({
   }
 
   return (
-    <div className="flex items-center gap-16">
+    <div className="flex flex-wrap items-center gap-8">
       <button
         type="button"
         onClick={onOpen}
-        className="inline-flex min-h-[4rem] items-center gap-12 rounded-xl border border-slate-300 px-16 py-8 text-[1.6rem] font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary"
+        title="Buka pratinjau PDF di tab baru"
+        className="btn-action-preview inline-flex min-h-[4rem] items-center gap-8 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-14 py-10 text-[1.35rem] font-semibold leading-[1.4] text-[#000000] transition-colors hover:bg-[#F8FAFC]"
       >
-        <AlertCircle size={12} />
-        <p>Open</p>
+        <ExternalLink size={15} className="shrink-0" />
+        <span>Open</span>
       </button>
       <button
         type="button"
         onClick={onPrint}
-        className="inline-flex min-h-[4rem] items-center gap-12 rounded-xl border border-slate-300 px-16 py-8 text-[1.6rem] font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary"
+        title="Cetak dokumen PDF"
+        className="inline-flex min-h-[4rem] items-center gap-8 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-14 py-10 text-[1.35rem] font-semibold leading-[1.4] text-[#000000] transition-colors hover:bg-[#F8FAFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0000FF]"
       >
-        <Printer size={12} />
-        <p>Print</p>
+        <Printer size={15} className="shrink-0 text-[#000000]" />
+        <span>Print</span>
       </button>
       <button
         type="button"
         onClick={() => void handleDownload()}
-        className="inline-flex min-h-[4rem] items-center gap-12 rounded-xl border border-slate-300 px-16 py-8 text-[1.6rem] font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary"
+        title="Unduh dokumen PDF"
+        className="btn-action-download inline-flex min-h-[4rem] items-center gap-8 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] px-14 py-10 text-[1.35rem] font-semibold leading-[1.4] text-[#008000] transition-colors hover:bg-[#F8FAFC]"
       >
-        <Download size={12} />
-        <p>Download</p>
+        <Download size={15} className="shrink-0" />
+        <span>Download</span>
       </button>
     </div>
   )
